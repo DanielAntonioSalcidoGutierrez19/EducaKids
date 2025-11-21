@@ -56,6 +56,7 @@ app.post("/send-activity-email", async (req, res) => {
   }
 });
 
+// SOLO UNA VEZ, NO LA DUPLIQUES
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor EducaKids escuchando en puerto", PORT);
