@@ -6,7 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const APP_PASSWORD = "vsklvmwtxsaoamtm";
+// Contraseña de aplicación correcta
+const APP_PASSWORD = "vskl vmwt xsao amtm".replace(/\s/g, "");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -16,6 +17,37 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// =============================
+// A) CORREO CUANDO SE REGISTRA
+// =============================
+app.post("/send-email", async (req, res) => {
+  const { to, subject, message } = req.body;
+
+  if (!to || !subject || !message) {
+    return res.status(400).json({
+      ok: false,
+      message: "Faltan datos (to, subject, message)"
+    });
+  }
+
+  try {
+    await transporter.sendMail({
+      from: '"EducaKids" <educakids83@gmail.com>',
+      to,
+      subject,
+      text: message
+    });
+
+    res.json({ ok: true, message: "Correo enviado correctamente" });
+  } catch (error) {
+    console.error("Error al enviar correo:", error);
+    res.status(500).json({ ok: false, message: "Error al enviar correo" });
+  }
+});
+
+// ================================
+// B) CORREO CUANDO TERMINA ACTIVIDAD
+// ================================
 app.post("/send-activity-email", async (req, res) => {
   const { parentEmail, username, activityName, points } = req.body;
 
@@ -48,6 +80,7 @@ app.post("/send-activity-email", async (req, res) => {
   }
 });
 
+// Servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor de correos EducaKids escuchando en puerto", PORT);
