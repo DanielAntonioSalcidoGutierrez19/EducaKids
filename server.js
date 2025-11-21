@@ -6,8 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Contraseña de aplicación correcta
-const APP_PASSWORD = "vskl vmwt xsao amtm".replace(/\s/g, "");
+// Contraseña de app (sin espacios)
+const APP_PASSWORD = "vsklvmwtxsaoamtm";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -17,16 +17,19 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// =============================
-// A) CORREO CUANDO SE REGISTRA
-// =============================
+// Ruta principal para que Render no falle
+app.get("/", (req, res) => {
+  res.send("Servidor de EducaKids funcionando ✔");
+});
+
+// ========= A) Correo al registrarse =========
 app.post("/send-email", async (req, res) => {
   const { to, subject, message } = req.body;
 
   if (!to || !subject || !message) {
     return res.status(400).json({
       ok: false,
-      message: "Faltan datos (to, subject, message)"
+      message: "Faltan datos en la petición"
     });
   }
 
@@ -39,15 +42,13 @@ app.post("/send-email", async (req, res) => {
     });
 
     res.json({ ok: true, message: "Correo enviado correctamente" });
-  } catch (error) {
-    console.error("Error al enviar correo:", error);
+  } catch (err) {
+    console.error("Error enviando correo:", err);
     res.status(500).json({ ok: false, message: "Error al enviar correo" });
   }
 });
 
-// ================================
-// B) CORREO CUANDO TERMINA ACTIVIDAD
-// ================================
+// ========= B) Correo al terminar actividad =========
 app.post("/send-activity-email", async (req, res) => {
   const { parentEmail, username, activityName, points } = req.body;
 
@@ -65,17 +66,17 @@ app.post("/send-activity-email", async (req, res) => {
       subject: `Actividad completada por ${username}`,
       html: `
         <h2>🎉 ¡Actividad completada!</h2>
-        <p><strong>${username}</strong> ha completado una actividad en EducaKids.</p>
-        <p>📘 <strong>Actividad:</strong> ${activityName}</p>
-        <p>🏆 <strong>Puntos obtenidos:</strong> ${points}</p>
+        <p><strong>${username}</strong> ha completado una actividad.</p>
+        <p>📘 Actividad: <strong>${activityName}</strong></p>
+        <p>🏆 Puntos obtenidos: <strong>${points}</strong></p>
         <br/>
         <p>Gracias por usar EducaKids ❤️</p>
       `
     });
 
     res.json({ ok: true, message: "Correo enviado correctamente" });
-  } catch (error) {
-    console.error("Error enviando correo:", error);
+  } catch (err) {
+    console.error("Error enviando correo:", err);
     res.status(500).json({ ok: false, message: "Error al enviar correo" });
   }
 });
@@ -83,5 +84,6 @@ app.post("/send-activity-email", async (req, res) => {
 // Servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Servidor de correos EducaKids escuchando en puerto", PORT);
+  console.log("Servidor de EducaKids escuchando en puerto", PORT);
 });
+
