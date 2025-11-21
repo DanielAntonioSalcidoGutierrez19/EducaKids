@@ -6,12 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Servidor EducaKids funcionando.");
-});
-
+// 🔐 Contraseña de aplicación Gmail
 const APP_PASSWORD = "vsklvmwtxsaoamtm";
 
+// 🚀 Transporter de Gmail
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -20,11 +18,20 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// 🌍 Ruta para probar que el servidor corre
+app.get("/", (req, res) => {
+  res.send("Servidor EducaKids funcionando.");
+});
+
+// 📩 Ruta oficial que usa el app.js de React Native
 app.post("/send-activity-email", async (req, res) => {
   const { parentEmail, username, activityName, points } = req.body;
 
   if (!parentEmail || !username || !activityName || points === undefined) {
-    return res.status(400).json({ ok: false, message: "Faltan datos" });
+    return res.status(400).json({
+      ok: false,
+      message: "Faltan datos (parentEmail, username, activityName, points)"
+    });
   }
 
   try {
@@ -34,24 +41,24 @@ app.post("/send-activity-email", async (req, res) => {
       subject: `Actividad completada por ${username}`,
       html: `
         <h2>🎉 ¡Actividad completada!</h2>
-        <p><strong>${username}</strong> completó una actividad.</p>
-        <p>📘 Actividad: ${activityName}</p>
-        <p>🏆 Puntos: ${points}</p>
+        <p><strong>${username}</strong> ha completado una actividad en EducaKids.</p>
+        <p>📘 <strong>Actividad:</strong> ${activityName}</p>
+        <p>🏆 <strong>Puntos obtenidos:</strong> ${points}</p>
+        <br/>
+        <p>Gracias por usar EducaKids ❤️</p>
       `
     });
 
-    res.json({ ok: true, message: "Correo enviado" });
-  } catch (err) {
-    res.status(500).json({ ok: false, message: "Error enviando correo" });
+    res.json({ ok: true, message: "Correo enviado correctamente" });
+  } catch (error) {
+    console.error("Error enviando correo:", error);
+    res.status(500).json({ ok: false, message: "Error al enviar correo" });
   }
 });
 
+// 🔥 IMPORTANTE: solo una vez se declara el PORT
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Servidor escuchando en puerto", PORT));
 
-
-// Puerto Render
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("🚀 Servidor EducaKids iniciado en puerto", PORT);
+  console.log("Servidor EducaKids escuchando en puerto", PORT);
 });
