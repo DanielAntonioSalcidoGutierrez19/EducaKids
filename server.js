@@ -40,7 +40,7 @@ app.post("/send-activity-email", async (req, res) => {
   }
 
   try {
-    const response = await axios.post(
+    await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: { email: SENDER_EMAIL, name: "EducaKids" },
@@ -51,13 +51,13 @@ app.post("/send-activity-email", async (req, res) => {
           <p><strong>${username}</strong> terminó una actividad en EducaKids.</p>
           <p>📘 Actividad: <strong>${activityName}</strong></p>
           <p>🏆 Puntos: <strong>${points}</strong></p>
-        `,
+        `
       },
       {
         headers: {
           "api-key": BREVO_API_KEY,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json"
         }
       }
     );
