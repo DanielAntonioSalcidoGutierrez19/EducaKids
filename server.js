@@ -6,10 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Variables de entorno Railway
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
 
+// Ruta de prueba
+app.get("/", (req, res) => {
+  res.send("Servidor EducaKids funcionando en Railway.");
+});
+
+// Enviar correo usando la API DE BREVO (no SMTP)
 app.post("/send-activity-email", async (req, res) => {
   const { parentEmail, username, activityName, points } = req.body;
 
@@ -21,9 +26,10 @@ app.post("/send-activity-email", async (req, res) => {
         to: [{ email: parentEmail }],
         subject: `Actividad completada por ${username}`,
         htmlContent: `
-          <h2>Actividad completada 🎉</h2>
-          <p>${username} terminó la actividad <strong>${activityName}</strong>.</p>
-          <p>Puntos obtenidos: <strong>${points}</strong></p>
+          <h2>🎉 ¡Actividad completada!</h2>
+          <p><strong>${username}</strong> terminó una actividad.</p>
+          <p>📘 Actividad: <strong>${activityName}</strong></p>
+          <p>🏆 Puntos: <strong>${points}</strong></p>
         `
       },
       {
@@ -35,14 +41,13 @@ app.post("/send-activity-email", async (req, res) => {
     );
 
     res.json({ ok: true, message: "Correo enviado correctamente" });
-  } catch (err) {
-    console.log("❌ ERROR BREVO:", err.response?.data || err);
-    res.status(500).json({ ok: false, message: "Error al enviar correo" });
+  } catch (error) {
+    console.log("❌ ERROR BREVO API:", error.response?.data || error);
+    res.status(500).json({ ok: false, message: "No se pudo enviar el correo" });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("🚀 Servidor en Railway → Puerto:", PORT);
-});
-
+app.listen(PORT, () =>
+  console.log("🚀 Servidor EducaKids escuchando en puerto", PORT)
+);
